@@ -105,7 +105,7 @@ files
     const item = body[ele];
     {% endif %}
     if (item !== undefined && item !== null) {
-      formData.append(ele, typeof item === 'object' ? JSON.stringify(item) : item);
+      formData.append(ele, typeof item === 'object' ? new Blob([JSON.stringify(item)], {type: "application/json"}) : item);
     }
   });
   {% endif %}
