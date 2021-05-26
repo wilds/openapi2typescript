@@ -337,7 +337,7 @@ class ServiceGenerator {
     Log(`✅ 成功生成 service 文件`);
   }
 
-  public concatOrNull = (...arrays) => {let c = [].concat(...arrays.filter(Array.isArray)); return c.length > 0 ? c : null};
+  public concatOrNull = (...arrays) => {const c = [].concat(...arrays.filter(Array.isArray)); return c.length > 0 ? c : null};
 
   public getServiceTP() {
     return Object.keys(this.apiData)
@@ -357,10 +357,11 @@ class ServiceGenerator {
               const body = this.getBodyTP(newApi.requestBody);
               const response = this.getResponseTP(newApi.responses);
 
-              let { file, ...params } = allParams || {};  // I dont't know if 'file' is valid parameter, maybe it's safe to remove it
-              const newfile = this.getFileTP(newApi.requestBody);
-              file = this.concatOrNull(file, newfile);
-              //const file = this.getFileTP(newApi.requestBody);
+              // let { file, ...params } = allParams || {};  // I dont't know if 'file' is valid parameter, maybe it's safe to remove it
+              // const newfile = this.getFileTP(newApi.requestBody);
+              // file = this.concatOrNull(file, newfile);
+              const params = allParams || {};
+              const file = this.getFileTP(newApi.requestBody);
 
               let formData = false;
               if ((body && (body.mediaType || '').includes('form')) || file) {
@@ -549,15 +550,15 @@ class ServiceGenerator {
   }
   public getFileTP(requestBody: any = {}) {
     if (requestBody && requestBody.content && requestBody.content['multipart/form-data']) {
-        let ret = this.resolveFileTP(requestBody.content['multipart/form-data'].schema)
+        const ret = this.resolveFileTP(requestBody.content['multipart/form-data'].schema)
         return ret.length > 0 ? ret : null;
     }
     return null;
   }
   public resolveFileTP(obj: any) {
       let ret = [];
-      let resolved = this.resolveObject(obj, true)
-      let props = (resolved.props && resolved.props.filter(p => p.format === 'binary' || p.format === 'base64')) || [];
+      const resolved = this.resolveObject(obj, true)
+      const props = (resolved.props && resolved.props.filter(p => p.format === 'binary' || p.format === 'base64')) || [];
       if (props.length > 0) {
           ret = props.map(p => { return { title: p.name } });
       }
@@ -596,7 +597,7 @@ class ServiceGenerator {
     const templateParams: Record<string, ParameterObject[]> = {};
 
     if (parameters && parameters.length) {
-      ['query', 'header', 'path', 'cookie', 'file'].forEach((source) => { //Possible values are "query", "header", "path" or "cookie". (https://swagger.io/specification/)
+      ['query', 'header', 'path', 'cookie'/* , 'file' */].forEach((source) => { // Possible values are "query", "header", "path" or "cookie". (https://swagger.io/specification/)
         const params = parameters
           .map((p) => this.resolveRefObject(p))
           .filter((p: ParameterObject) => p.in === source)
@@ -622,7 +623,7 @@ class ServiceGenerator {
     }
 
     if (path && path.length > 0) {
-      var regex = /\{(\w+)\}/g;
+      const regex = /\{(\w+)\}/g;
       templateParams['path'] = templateParams['path'] || [];
       let match = null;
       while (match = regex.exec(path)) {
@@ -787,7 +788,7 @@ class ServiceGenerator {
     let props: any[] = [];
     if (allOf.length > 0) {
       props = flatten(allOf.map((item) => {
-        let resolved = this.resolveObject(item);
+        const resolved = this.resolveObject(item);
         return resolved.props ? resolved.props : this.getProps(resolved);
       }));
     }
