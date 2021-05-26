@@ -633,6 +633,8 @@ class ServiceGenerator {
           })
         }
       }
+      if (templateParams['path'].length === 0)
+        delete templateParams['path'];
     }
 
     return templateParams;
